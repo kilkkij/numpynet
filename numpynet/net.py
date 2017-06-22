@@ -10,7 +10,6 @@ except ImportError:
 else:
     K, dK = lambda x: evaluate('1.7159*tanh(0.666*x)'), lambda x: evaluate('1.1427894*(1-(tanh(0.666*x))**2)')
 
-
 REGULARIZATION_PARAMETER = 1.e-4
 
 class Net(object):
@@ -30,7 +29,7 @@ class Net(object):
         self.form = (data.insize,) + tuple(hidden_sizes) + (data.outsize,)
         self.depth = len(self.form)
         # Data arrays
-        self.ax = [empty((data.batchsize, size, 1)) for size in self.form]
+        self.ax = [empty((data.batchsize, size)) for size in self.form]
         # Data arrays but unactivated
         self.x = [None] + [empty_like(xi) for xi in self.ax[1:]]
         # Gradients of energy wrt. unactivated data at each layer
@@ -40,26 +39,26 @@ class Net(object):
         # Weights
         self.W = [unif_rand((data.batchsize, self.form[i+1], self.form[i])) for i in range(self.depth-1)]
         # Weight gradients
-        self.dW = [zeros_like(Wi) for Wi in self.W]
+        self.dEdW = [zeros_like(Wi) for Wi in self.W]
         # First data array equals input observations
-        self.ax[0] = asarray([yi for yi, yo in data.obs]).reshape((data.batchsize, 2, 1))
+        self.ax[0] = asarray([yi for yi, yo in data.obs]).reshape((data.batchsize, 2))
 
     def activate(self):
         x, ax, W = self.x, self.ax, self.W
         for i in range(1, self.depth):
-            x[i][:] = einsum('dij,djk->dik', W[i-1], ax[i-1])
+            x[i][:] = einsum('dij,dj->di', W[i-1], ax[i-1])
             ax[i][:] = K(x[i])
 
     def weight_gradient(self):
 
-        x, ax, W, dEdx, dEdW = self.x, self.ax, self.W, self.dEdx, self.dW
+        x, ax, W, dEdx, dEdW = self.x, self.ax, self.W, self.dEdx, self.dEdW
 
         # Output layer first.
         # Observation error
         error = ax[-1] - self.data.values
         # E for energy = cost function = log-inv-prob, d for derivative
         dEdx[-1] = error*dK(x[-1])
-        dEdW[-1] = dEdx[-1]*ax[-2].swapaxes(-1, -2)
+        dEdW[-1] = einsum('ij,ik->ijk', dEdx[-1], ax[-2])
 
         # The rest of the weight layers.
         # For 1 hidden layer, this loop is just i=0
@@ -68,9 +67,10 @@ class Net(object):
             # The sum corresponds to contributions by (unactivated) i+2 data layer and i+1 weight layer.
             # To match dimensions, shape of the sum expression is spread.
             # Each activation gradient is multiplied elementwise.
-            dEdx[i+1][:] = einsum('dnm,dni->di', dEdx[i+2], W[i+1])[..., None]*dK(x[i+1])
+            dEdx_W = einsum('dn,dni->di', dEdx[i+2], W[i+1])
+            dEdx[i+1][:] = dEdx_W*dK(x[i+1])
             # Gradient wrt. weight matrix
-            dEdW[i][:] = dEdx[i+1]*ax[i].swapaxes(-1, -2)
+            dEdW[i][:] = einsum('dn,di->dni', dEdx[i+1], ax[i])
             # Regularization term gradient
             dEdW[i][:] += W[i]**1*REGULARIZATION_PARAMETER
 

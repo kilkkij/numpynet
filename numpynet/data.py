@@ -2,11 +2,11 @@
 from numpy import asarray
 
 obs = [([0.0, 0.0], [-1.]), ([0.0, 1.0], [1.0]), ([1.0, 0.0], [1.0]), ([1.0, 1.0], [-1.]),]
-obs = obs*100000
+obs = obs*10
 BATCHSIZE = len(obs)
 INSIZE = 2
 OUTSIZE = 1
-OBSERVATIONS = asarray([yo for yi, yo in obs]).reshape((BATCHSIZE, 1, 1))
+OBSERVATIONS = asarray([yo for yi, yo in obs]).reshape((BATCHSIZE, 1))
 
 class Data:
 	def __init__(self):

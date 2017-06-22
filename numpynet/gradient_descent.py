@@ -10,7 +10,7 @@ class Descender(object):
 
     def __init__(self, net):
         self.net = net
-        self.delta_prev = [np.copy(dWi) for dWi in net.dW]
+        self.delta_prev = [np.copy(dWi) for dWi in net.dEdW]
 
     def descend_batch(self):
         W = self.net.W
