@@ -13,6 +13,7 @@ class Descender(object):
         """
         self.net = net
         self.lrate = lrate
+        self.momentum = momentum
         self.delta_prev = [np.copy(self.reduce(dWi)) for dWi in net.dEdW]
 
     def reduce(self, delta):

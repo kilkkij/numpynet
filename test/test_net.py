@@ -7,7 +7,6 @@ from net import Net
 from data import ArrayData
 
 xor_data = [([0.0, 0.0], [-1.]), ([0.0, 1.0], [1.0]), ([1.0, 0.0], [1.0]), ([1.0, 1.0], [-1.]),]
-xor_data = xor_data
 
 class NetTests(unittest.TestCase):
 
@@ -29,6 +28,7 @@ class NetTests(unittest.TestCase):
         for i in range(self.net.depth-1):
             self.net.W[i][:] = 1
         self.net.activate()
+        # The unactivated data on the second layer is simple to calculate because the weights are all one.
         self.assertTrue(np.allclose(self.net.x[1], [[ 0.,  0.,  0.],[ 1.,  1.,  1.],[ 1.,  1.,  1.],[ 2.,  2.,  2.],]))
 
     def test_first_hidden_layer_activation(self):
@@ -39,7 +39,6 @@ class NetTests(unittest.TestCase):
         # First data point is zeros, the rest have ones. 
         self.assertTrue(np.allclose(activated[0], 0))
         self.assertTrue(np.all(activated[1:, :] > 0))
-
 
 if __name__=="__main__":
     unittest.main()
