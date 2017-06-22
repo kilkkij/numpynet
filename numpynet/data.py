@@ -1,15 +1,14 @@
 
 """
-Currently only XOR data available.
 """
 
 from numpy import asarray
 
-obs = [([0.0, 0.0], [-1.]), ([0.0, 1.0], [1.0]), ([1.0, 0.0], [1.0]), ([1.0, 1.0], [-1.]),]
-obs = obs*100000
-
 class ArrayData:
-	"""XOR inputs and observations."""
+	"""Inputs (that match input layer) and observations (that match output layer).
+    For example, XOR data:
+    [([0.0, 0.0], [-1.]), ([0.0, 1.0], [1.0]), ([1.0, 0.0], [1.0]), ([1.0, 1.0], [-1.])]
+    """
 	def __init__(self, datapairs):
 		assert(len(datapairs))
 		i, o = zip(*datapairs)
