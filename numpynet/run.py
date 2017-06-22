@@ -5,13 +5,9 @@ from gradient_descent import Descender
 
 if __name__=='__main__':
 
-    # timeit descend()
-
-    xordata = Data()
+    xordata = ArrayData()
     net = Net([5], xordata)
     desc = Descender(net)
-    
-    # idx, sqes = zip(*desc.descend(100))
 
     idx, sqes = [], []
     for i, s in desc.descend(100):

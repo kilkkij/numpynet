@@ -1,16 +1,18 @@
 
 import numpy as np
 
-LRATE = .2
-MOMENTUM = .4
 
 class Descender(object):
     """Gradient descent with momentum."""
+    
 
-    def __init__(self, net):
+    def __init__(self, net, lrate, momentum):
         """
+        lrate       Learning rate. E.g. lrate=0.2
+        momentum    Momentum for faster convergenge. E.g. 0.4
         """
         self.net = net
+        self.lrate = lrate
         self.delta_prev = [np.copy(self.reduce(dWi)) for dWi in net.dEdW]
 
     def reduce(self, delta):
@@ -26,16 +28,16 @@ class Descender(object):
         # Update weights
         for wi in range(self.net.depth-1):
             # Weight increment. Doesn't include momentum
-            delta_wi = -LRATE*dEdW[wi]
+            delta_wi = -self.lrate*dEdW[wi]
             # Reduction over batch axis 
             # because there are multiple inputs at each gradient calculation
             delta_wi = self.reduce(delta_wi)
             # Descend step
-            W[wi][:] += delta_wi + MOMENTUM*self.delta_prev[wi]
+            W[wi][:] += delta_wi + self.momentum*self.delta_prev[wi]
             # Save weight increment for the next step
             self.delta_prev[wi][:] = delta_wi
         # Squared errors
-        sqerrors = (self.net.data.values - ax[-1])**2
+        sqerrors = (self.net.data.output - ax[-1])**2
         return sqerrors
 
     def descend(self, N):

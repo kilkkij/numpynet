@@ -43,7 +43,7 @@ class Net(object):
         # Weight gradients
         self.dEdW = [zeros((data.batchsize,)+Wi.shape) for Wi in self.W]
         # First data array equals input observations
-        self.ax[0] = asarray([yi for yi, yo in data.obs])
+        self.ax[0] = data.input
 
     def activate(self):
         x, ax, W = self.x, self.ax, self.W
@@ -57,7 +57,7 @@ class Net(object):
 
         # Output layer first.
         # Observation error
-        error = ax[-1] - self.data.values
+        error = ax[-1] - self.data.output
         # E for energy = cost function = log-inv-prob, d for derivative
         dEdx[-1] = error*dK(x[-1])
         dEdW[-1] = einsum('ij,ik->ijk', dEdx[-1], ax[-2])
@@ -67,7 +67,6 @@ class Net(object):
         for i in range(self.depth-3, -1, -1):
             # Gradient wrt. unactivated data.
             # The sum corresponds to contributions by (unactivated) i+2 data layer and i+1 weight layer.
-            # To match dimensions, shape of the sum expression is spread.
             # Each activation gradient is multiplied elementwise.
             dEdx_W = einsum('dn,ni->di', dEdx[i+2], W[i+1])
             dEdx[i+1][:] = dEdx_W*dK(x[i+1])
