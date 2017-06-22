@@ -1,2 +1,2 @@
 # numpynet
-A feedforward net on NumPy
+A feedforward net on NumPy.
