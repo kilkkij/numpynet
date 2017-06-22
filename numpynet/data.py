@@ -2,7 +2,7 @@
 from numpy import asarray
 
 obs = [([0.0, 0.0], [-1.]), ([0.0, 1.0], [1.0]), ([1.0, 0.0], [1.0]), ([1.0, 1.0], [-1.]),]
-obs = obs*10
+obs = obs*10000
 BATCHSIZE = len(obs)
 INSIZE = 2
 OUTSIZE = 1

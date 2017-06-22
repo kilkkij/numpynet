@@ -5,12 +5,16 @@ LRATE = .2
 MOMENTUM = .4
 
 class Descender(object):
-
-    """Gradient descent."""
+    """Gradient descent with momentum."""
 
     def __init__(self, net):
+        """
+        """
         self.net = net
-        self.delta_prev = [np.copy(dWi) for dWi in net.dEdW]
+        self.delta_prev = [np.copy(self.reduce(dWi)) for dWi in net.dEdW]
+
+    def reduce(self, delta):
+        return np.mean(delta, axis=0)
 
     def descend_batch(self):
         W = self.net.W
@@ -23,6 +27,9 @@ class Descender(object):
         for wi in range(self.net.depth-1):
             # Weight increment. Doesn't include momentum
             delta_wi = -LRATE*dEdW[wi]
+            # Reduction over batch axis 
+            # because there are multiple inputs at each gradient calculation
+            delta_wi = self.reduce(delta_wi)
             # Descend step
             W[wi][:] += delta_wi + MOMENTUM*self.delta_prev[wi]
             # Save weight increment for the next step
